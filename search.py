@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Deserialization — mapeo rápido de (de)serialización insegura
+Deserialization — mapeo fast de (de)serialización insegura
 - Fingerprinting de blobs y respuestas (PHP/Python/JSON/XML/Java/.NET/Ruby)
 - Sondeo HTTP con cargas "canario" 
 - Caja blanca: grep de repos PHP y Python (sinks, gadgets, PHAR, Pickle, YAML, JSON, XML)
@@ -178,7 +178,7 @@ DANG_FUNCS = [
     r'\brequire\s*\(',
     r'\beval\s*\(',
 ]
-MAGIC_METHODS = [r'function\s+__wakeup\s*\(', r'function\s+__destruct\s*\(']
+MAGIC_METHODS = [r'function\s+__wakeup\s*\(', r'function\s+__destruct\s*\(', r'function\s+__construct\s*\(', r'function\s+__toString\s*\(', r'function\s+__call\s*\(', r'function\s+__get\s*\(', r'function\s+__set\s*\(', r'function\s+__clone\s*\(', r'function\s+__isset\s*\(', r'function\s+__invoke\s*\(', r'function\s+__sleep\s*\(', r'function\s+__callStatic\s*\(', r'function\s+__unset\s*\(', r'function\s+__set_state\s*\(', r'function\s+__debuginfo\s*\(', r'function\s+__unserialize\s*\(', r'function\s+__serialize\s*\(']
 
 def scan_php_repo(root: Path):
     findings = {'phar_sinks': [], 'magic_gadgets': [], 'serialize_calls': [], 'unserialize_calls': []}
@@ -264,7 +264,7 @@ GADGET_HINTS = [
     ("php_serialize", [
         "Busca __wakeup/__destruct con include/require/exec/system",
         "PHAR vía wrappers phar:// + file_exists/fopen (metadatos serializados en PHP<=7.x)",
-        "Laravel Blade: variables sin escape {!! ... !!} → XSS tras inyección de objeto",
+        "Laravel Blade: variables sin escape {!! ... !!} - XSS tras inyección de objeto",
     ]),
     # Pickle
     ("pickle", [
@@ -273,9 +273,9 @@ GADGET_HINTS = [
     ]),
     # JSON typed (.NET / Java)
     ("json_typed", [
-        "Newtonsoft.Json: TypeNameHandling != None → setters/constructores/TypeConverters (RCE)",
-        "Jackson @class/@type enableDefaultTyping → setters no-estrictos (JdbcRowSetImpl, JNDI)",
-        "Entrada tipo objeto System.Object / java.lang.Object en el grafo → punto de inyección",
+        "Newtonsoft.Json: TypeNameHandling != None - setters/constructores/TypeConverters (RCE)",
+        "Jackson @class/@type enableDefaultTyping - setters no-estrictos (JdbcRowSetImpl, JNDI)",
+        "Entrada tipo objeto System.Object / java.lang.Object en el grafo - punto de inyección",
     ]),
     # XML
     ("xml_xxe_risk", [
@@ -284,12 +284,12 @@ GADGET_HINTS = [
     ]),
     # .NET BinaryFormatter
     (".net_binfmt", [
-        "BinaryFormatter/NetDataContract/LosFormatter → callbacks & setters → RCE gadgets",
-        "PSObject (PowerShell) constructor de serialización → CLI XML → conversores/Parse/XAML",
+        "BinaryFormatter/NetDataContract/LosFormatter - callbacks & setters - RCE gadgets",
+        "PSObject (PowerShell) constructor de serialización - CLI XML - conversores/Parse/XAML",
     ]),
     # Java serialization
     ("java_serial", [
-        "Clásicos ysoserial; pero con JSON (Jackson/Genson) el vector pasa por setters + @class",
+        "unclasico ysoserial; pero con JSON (Jackson/Genson) el vector pasa por setters + @class",
     ]),
 ]
 
@@ -322,7 +322,7 @@ def render_php_findings(f):
     cols = []
     for title, key, color in [
         ("PHAR sinks sospechosos", 'phar_sinks', 'yellow'),
-        ("Clases con __wakeup/__destruct + sinks peligrosos", 'magic_gadgets', 'red'),
+        ("Clases con __wakeup/__destruct + sinks peligrosos - otros", 'magic_gadgets', 'red'),
         ("serialize() vistos", 'serialize_calls', 'cyan'),
         ("unserialize() vistos", 'unserialize_calls', 'magenta'),
     ]:
@@ -401,7 +401,7 @@ def suggested_queries(formats_found):
     return deduped
 
 def main():
-    ap = argparse.ArgumentParser(description="Desearch — mapeo rápido")
+    ap = argparse.ArgumentParser(description="Desearch — mapeo fast")
     ap.add_argument('input', nargs='?', help='Archivo a fingerprint (raw o base64)')
     ap.add_argument('--as-base64', action='store_true', help='Forzar decodificar base64 antes de fingerprint')
     ap.add_argument('--url', help='Endpoint a sondear (GET/POST)')
