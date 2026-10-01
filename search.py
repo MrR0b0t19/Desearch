@@ -178,8 +178,8 @@ DANG_FUNCS = [
     r'\brequire\s*\(',
     r'\beval\s*\(',
 ]
-MAGIC_METHODS = [r'function\s+__wakeup\s*\(', r'function\s+__destruct\s*\(', r'function\s+__construct\s*\(', r'function\s+__toString\s*\(', r'function\s+__call\s*\(', r'function\s+__get\s*\(', r'function\s+__set\s*\(', r'function\s+__clone\s*\(', r'function\s+__isset\s*\(', r'function\s+__invoke\s*\(', r'function\s+__sleep\s*\(', r'function\s+__callStatic\s*\(', r'function\s+__unset\s*\(', r'function\s+__set_state\s*\(', r'function\s+__debuginfo\s*\(', r'function\s+__unserialize\s*\(', r'function\s+__serialize\s*\(']
-
+MAGIC_METHODS = [r'function\s+__wakeup\s*\(', r'function\s+__destruct\s*\(', r'function\s+__construct\s*\(', r'function\s+__toString\s*\(', r'function\s+__call\s*\(', r'function\s+__get\s*\(', r'function\s+__set\s*\(', r'function\s+__clone\s*\(', r'function\s+__isset\s*\(', r'function\s+__invoke\s*\(', r'function\s+__sleep\s*\(', r'function\s+__callStatic\s*\(', r'function\s+__unset\s*\(', r'function\s+__set_state\s*\(', r'function\s+__debuginfo\s*\(', r'function\s+__unserialize\s*\(', r'function\s+__serialize\s*\(', r'function\s+__VIEWSTATE\s*\(', r'.Deserialize(', r'JSON.ToObject(' , r'JsonConvert.DeserializeObject(', r'.ReadObject(', r'__type']
+#¡no todo uso de una función de una librería de deserialización puede ser vulnerable!
 def scan_php_repo(root: Path):
     findings = {'phar_sinks': [], 'magic_gadgets': [], 'serialize_calls': [], 'unserialize_calls': []}
     for p in root.rglob('*.php'):
